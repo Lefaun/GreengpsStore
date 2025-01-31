@@ -89,30 +89,51 @@ if usuario == "admin" and senha == "1234":
             mapa = folium.Map(location=[38.7169, -9.1399], zoom_start=11)
             st_folium(mapa, width=800)
 
-    with tabs[1]:
-        st.title("🛒 Loja Online - Produtos Sustentáveis")
+   if aba == "🛍️ Loja Sustentável":
+    st.title("🛍️ Loja Sustentável")
+    produtos = [
+        {"nome": "Cesta Orgânica", "preco": 12.99, "img": "https://via.placeholder.com/150"},
+        {"nome": "Sabonete Natural", "preco": 7.50, "img": "https://via.placeholder.com/150"},
+        {"nome": "Bolsa Ecológica", "preco": 15.00, "img": "https://via.placeholder.com/150"},
+        {"nome": "Kit Bambu", "preco": 9.99, "img": "https://via.placeholder.com/150"},
+        {"nome": "Mel Orgânico", "preco": 18.50, "img": "https://via.placeholder.com/150"},
+        {"nome": "Horta Caseira", "preco": 25.00, "img": "https://via.placeholder.com/150"},
+        {"nome": "Cosméticos Naturais", "preco": 19.99, "img": "https://via.placeholder.com/150"},
+        {"nome": "Chá Artesanal", "preco": 10.99, "img": "https://via.placeholder.com/150"},
+        {"nome": "Velas Ecológicas", "preco": 14.50, "img": "https://via.placeholder.com/150"},
+    ]
 
-        produtos = [
-            {"nome": "Cesta de Legumes", "preco": "10€"},
-            {"nome": "Sabão Orgânico", "preco": "5€"},
-            {"nome": "Garrafa Ecológica", "preco": "15€"},
-            {"nome": "Bolsa Reciclável", "preco": "7€"},
-            {"nome": "Kit Sustentável", "preco": "20€"},
-            {"nome": "Talheres de Bambu", "preco": "8€"}
-        ]
+    def adicionar_ao_carrinho(produto):
+        if produto in st.session_state["carrinho"]:
+            st.session_state["carrinho"][produto] += 1
+        else:
+            st.session_state["carrinho"][produto] = 1
 
-        if "carrinho" not in st.session_state:
-            st.session_state.carrinho = []
+    cols = st.columns(3)
 
-        for produto in produtos:
-            if st.button(f"Comprar {produto['nome']} - {produto['preco']}"):
-                st.session_state.carrinho.append(produto["nome"])
-                st.success(f"✅ {produto['nome']} adicionado ao carrinho!")
+    for i, produto in enumerate(produtos):
+        with cols[i % 3]:
+            st.image(produto["img"], caption=produto["nome"])
+            st.write(f"💲 {produto['preco']:.2f}")
+            if st.button(f"🛒 Adicionar {produto['nome']}", key=produto["nome"]):
+                adicionar_ao_carrinho(produto["nome"])
+                st.success(f"{produto['nome']} adicionado ao carrinho!")
 
-        if st.session_state.carrinho:
-            st.subheader("🛍️ Carrinho de Compras")
-            for item in st.session_state.carrinho:
-                st.write(f"- {item}")
+    st.sidebar.title("🛒 Carrinho de Compras")
+    if st.session_state["carrinho"]:
+        total = 0
+        for item, qtd in st.session_state["carrinho"].items():
+            preco = next(p["preco"] for p in produtos if p["nome"] == item)
+            subtotal = preco * qtd
+            total += subtotal
+            st.sidebar.write(f"{item} ({qtd}x) - 💲{subtotal:.2f}")
+
+        st.sidebar.write(f"**Total: 💲{total:.2f}**")
+        if st.sidebar.button("✅ Finalizar Pedido"):
+            st.sidebar.success("Pedido realizado com sucesso! 🌱")
+            st.session_state["carrinho"] = {}
+    else:
+        st.sidebar.write("Seu carrinho está vazio.")
 
 else:
     st.sidebar.error("❌ Credenciais incorretas")
