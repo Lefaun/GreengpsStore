@@ -290,5 +290,5 @@ else:
     st.sidebar.write("Seu carrinho está vazio.")
 
 
-else:
-    st.sidebar.error("❌ Credenciais incorretas")
+#else:
+    #st.sidebar.error("❌ Credenciais incorretas")
