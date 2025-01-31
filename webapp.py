@@ -196,6 +196,98 @@ def enviar_email(pedido, total):
                 st.sidebar.error("❌ Erro ao enviar e-mail. Tente novamente.")
         else:
             st.sidebar.error("Seu carrinho está vazio.")
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import streamlit as st
+
+# Configuração do e-mail
+EMAIL_REMETENTE = "seuemail@gmail.com"  # Substitua pelo seu e-mail
+SENHA_EMAIL = "suasenha"  # Use uma senha de aplicativo para maior segurança
+EMAIL_DESTINATARIO = "seuemail@gmail.com"  # Para onde o pedido será enviado
+SMTP_SERVIDOR = "smtp.gmail.com"
+SMTP_PORTA = 587
+
+def enviar_email(pedido, total, endereco, pagamento):
+    msg = MIMEMultipart()
+    msg["From"] = EMAIL_REMETENTE
+    msg["To"] = EMAIL_DESTINATARIO
+    msg["Subject"] = "Novo Pedido - Loja Sustentável"
+
+    corpo_email = f"""
+    🛍️ Novo pedido recebido!
+    
+    Produtos:
+    {pedido}
+    
+    Total: 💲{total:.2f}
+    
+    Forma de pagamento: {pagamento}
+    Endereço de entrega: {endereco}
+    
+    Obrigado por sua compra! 🌱
+    """
+    msg.attach(MIMEText(corpo_email, "plain"))
+
+    try:
+        servidor = smtplib.SMTP(SMTP_SERVIDOR, SMTP_PORTA)
+        servidor.starttls()
+        servidor.login(EMAIL_REMETENTE, SENHA_EMAIL)
+        servidor.sendmail(EMAIL_REMETENTE, EMAIL_DESTINATARIO, msg.as_string())
+        servidor.quit()
+        return True
+    except Exception as e:
+        print(f"Erro ao enviar e-mail: {e}")
+        return False
+
+# Inicializa o carrinho na sessão
+if "carrinho" not in st.session_state:
+    st.session_state["carrinho"] = {}
+
+st.title("🛍️ Loja Sustentável")
+
+produtos = [
+    {"nome": "Cesta Orgânica", "preco": 12.99},
+    {"nome": "Sabonete Natural", "preco": 7.50},
+    {"nome": "Bolsa Ecológica", "preco": 15.00},
+    {"nome": "Kit Bambu", "preco": 9.99},
+    {"nome": "Mel Orgânico", "preco": 18.50}
+]
+
+for produto in produtos:
+    if st.button(f"🛒 Comprar {produto['nome']} - 💲{produto['preco']:.2f}"):
+        if produto['nome'] in st.session_state["carrinho"]:
+            st.session_state["carrinho"][produto['nome']] += 1
+        else:
+            st.session_state["carrinho"][produto['nome']] = 1
+        st.success(f"{produto['nome']} adicionado ao carrinho!")
+
+st.sidebar.title("🛒 Carrinho de Compras")
+
+if st.session_state["carrinho"]:
+    total = 0
+    pedido = ""
+    for item, qtd in st.session_state["carrinho"].items():
+        preco = next(p["preco"] for p in produtos if p["nome"] == item)
+        subtotal = preco * qtd
+        total += subtotal
+        pedido += f"{item} ({qtd}x) - 💲{subtotal:.2f}\n"
+
+    st.sidebar.write(f"**Total: 💲{total:.2f}**")
+    endereco = st.sidebar.text_input("📍 Endereço de Entrega")
+    pagamento = st.sidebar.selectbox("💳 Forma de Pagamento", ["Transferência Bancária", "MB Way", "PayPal"])
+
+    if st.sidebar.button("✅ Finalizar Pedido"):
+        if endereco:
+            if enviar_email(pedido, total, endereco, pagamento):
+                st.sidebar.success("Pedido realizado com sucesso! Um e-mail foi enviado. 📩")
+                st.session_state["carrinho"] = {}
+            else:
+                st.sidebar.error("❌ Erro ao enviar e-mail. Tente novamente.")
+        else:
+            st.sidebar.error("❌ Informe um endereço de entrega.")
+else:
+    st.sidebar.write("Seu carrinho está vazio.")
 
 
     else:
