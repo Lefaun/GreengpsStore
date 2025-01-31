@@ -89,7 +89,7 @@ if usuario == "admin" and senha == "1234":
             mapa = folium.Map(location=[38.7169, -9.1399], zoom_start=11)
             st_folium(mapa, width=800)
 
-if aba == "🛍️ Loja Sustentável":
+if tabs == "Loja Online":
     st.title("🛍️ Loja Sustentável")
     produtos = [
         {"nome": "Cesta Orgânica", "preco": 12.99, "img": "https://via.placeholder.com/150"},
