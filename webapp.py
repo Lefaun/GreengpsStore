@@ -140,7 +140,8 @@ if usuario == "admin" and senha == "1234":
                 st.session_state["carrinho"] = {}
         else:
             st.sidebar.write("Seu carrinho está vazio.")
-        import smtplib
+
+import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import streamlit as st
