@@ -143,4 +143,4 @@ def main():
             st.write("🛒 Seu carrinho está vazio.")
 
 if __name__ == "__main__":
-    main()
+ main()
