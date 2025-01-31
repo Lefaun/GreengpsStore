@@ -81,4 +81,66 @@ def main():
                 st.error("Usuário ou senha incorretos!")
         return
 
-    # 🔓 Se logado, mostrar 
+    # 🔓 Se logado, mostrar abas da aplicação
+    abas = st.tabs(["🏡 Rotas Sustentáveis", "🛒 Loja", "📦 Meu Carrinho"])
+
+    # 🏡 Aba 1: Seleção de Rota Sustentável
+    with abas[0]:
+        st.subheader("🌍 Planejar Percurso Sustentável")
+
+        # Seleção de local de partida e destino
+        locais = list(LOCALIDADES.keys())
+        inicio = st.selectbox("📍 Escolha o ponto de partida:", locais)
+        destino = st.selectbox("🏁 Escolha o destino:", locais)
+
+        if st.button("Calcular Rota Sustentável"):
+            if inicio == destino:
+                st.warning("⚠️ Escolha um destino diferente do ponto de partida!")
+            else:
+                rota = encontrar_rota_otimizada(inicio, destino)
+
+                # Salvar na sessão para evitar que o mapa desapareça
+                st.session_state["mapa"] = criar_mapa(rota)
+
+        # Mostrar mapa salvo
+        if "mapa" in st.session_state:
+            st_folium(st.session_state["mapa"], width=800, height=500)
+
+    # 🛒 Aba 2: Loja Online
+    with abas[1]:
+        st.subheader("🛍️ Produtos Sustentáveis")
+
+        for produto in PRODUTOS:
+            col1, col2, col3 = st.columns([2, 1, 1])
+            with col1:
+                st.markdown(f"**{produto['nome']}** - 💰 {produto['preco']}€")
+            with col2:
+                if st.button("🛍️ Adicionar", key=produto["nome"]):
+                    if "carrinho" not in st.session_state:
+                        st.session_state["carrinho"] = []
+                    st.session_state["carrinho"].append(produto)
+            with col3:
+                st.markdown(f"[🔗 Comprar]({produto['link']})")
+
+    # 📦 Aba 3: Carrinho
+    with abas[2]:
+        st.subheader("🛒 Meu Carrinho")
+
+        if "carrinho" in st.session_state and st.session_state["carrinho"]:
+            total = sum(prod["preco"] for prod in st.session_state["carrinho"])
+            for item in st.session_state["carrinho"]:
+                st.write(f"✅ {item['nome']} - {item['preco']}€")
+            st.markdown(f"**💰 Total: {total}€**")
+
+            if st.button("🛍️ Finalizar Compra"):
+                st.success("Compra concluída com sucesso! 🛍️")
+                st.session_state["carrinho"] = []
+
+            if st.button("🧹 Esvaziar Carrinho"):
+                st.session_state["carrinho"] = []
+                st.experimental_rerun()
+        else:
+            st.write("🛒 Seu carrinho está vazio.")
+
+if __name__ == "__main__":
+    main()
