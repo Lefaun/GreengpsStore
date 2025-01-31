@@ -183,19 +183,7 @@ def enviar_email(pedido, total):
     except Exception as e:
         return False
 
-# Exemplo de chamada no Streamlit quando o pedido for finalizado
-    if st.sidebar.button("✅ Finalizar Pedido"):
-        if st.session_state["carrinho"]:
-            pedido = "\n".join([f"{item} ({qtd}x)" for item, qtd in st.session_state["carrinho"].items()])
-            total = sum(next(p["preco"] for p in produtos if p["nome"] == item) * qtd for item, qtd in st.session_state["carrinho"].items())
-    
-            if enviar_email(pedido, total):
-                st.sidebar.success("Pedido realizado com sucesso! Um e-mail foi enviado para confirmação. 📩")
-                st.session_state["carrinho"] = {}
-            else:
-                st.sidebar.error("❌ Erro ao enviar e-mail. Tente novamente.")
-        else:
-            st.sidebar.error("Seu carrinho está vazio.")
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
