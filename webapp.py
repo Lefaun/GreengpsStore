@@ -15,7 +15,7 @@ senha = st.sidebar.text_input("Senha", type="password", value="1234", key="passw
 
 if usuario == "admin" and senha == "1234":
     with tabs[0]:
-        st.title("🚴 Otimizador de Percurso - Áreas Limpas")
+        st.title("🚴 Otimizador de Percurso - GPS Ativo")
 
         LOCALIDADES = {
             "Amadora": (38.7597, -9.2249),
@@ -35,45 +35,51 @@ if usuario == "admin" and senha == "1234":
 
         if calcular_rota:
             try:
+                # Criar grafo da rede viária para pedestres 🚶‍♂️
                 grafo = ox.graph_from_place("Lisboa, Portugal", network_type="walk")
-                origem = ox.distance.nearest_nodes(grafo, LOCALIDADES[inicio][0], LOCALIDADES[inicio][1])
-                destino = ox.distance.nearest_nodes(grafo, LOCALIDADES[destino][0], LOCALIDADES[destino][1])
                 
+                # Encontrar os nós mais próximos das coordenadas selecionadas
+                origem = ox.distance.nearest_nodes(grafo, LOCALIDADES[inicio][1], LOCALIDADES[inicio][0])
+                destino = ox.distance.nearest_nodes(grafo, LOCALIDADES[destino][1], LOCALIDADES[destino][0])
+                
+                # Calcular o caminho mais curto 🚲
                 caminho = nx.shortest_path(grafo, origem, destino, weight="length")
                 coords = [(grafo.nodes[n]['y'], grafo.nodes[n]['x']) for n in caminho]
 
-                # Criar Mapa
+                # Criar mapa
                 mapa = folium.Map(location=[(LOCALIDADES[inicio][0] + LOCALIDADES[destino][0]) / 2, 
-                                            (LOCALIDADES[inicio][1] + LOCALIDADES[destino][1]) / 2], zoom_start=13)
+                                            (LOCALIDADES[inicio][1] + LOCALIDADES[destino][1]) / 2], zoom_start=14)
 
-                # Linha tracejada em verde
-                folium.PolyLine(coords, color="green", weight=4, dash_array="5, 5").add_to(mapa)
+                # Adicionar linha azul (como no GPS) 🟦
+                folium.PolyLine(coords, color="blue", weight=6).add_to(mapa)
 
-                # Adicionando um marcador de bicicleta na posição inicial
+                # Adicionar um marcador inicial para a bicicleta 🚴‍♂️
                 bicicleta = folium.Marker(
                     location=coords[0],
-                    icon=folium.Icon(color="blue", icon="bicycle", prefix="fa")
+                    icon=folium.Icon(color="red", icon="bicycle", prefix="fa")
                 )
                 bicicleta.add_to(mapa)
 
+                # Exibir o mapa inicial
                 mapa_placeholder = st_folium(mapa, width=800)
 
-                # Simulação de Movimento GPS (atualização dinâmica)
+                # Simulação de navegação GPS ⏳
                 for i in range(len(coords)):
                     mapa = folium.Map(location=coords[i], zoom_start=14)
 
-                    # Linha tracejada verde
-                    folium.PolyLine(coords, color="green", weight=4, dash_array="5, 5").add_to(mapa)
+                    # Linha azul sólida 🟦
+                    folium.PolyLine(coords, color="blue", weight=6).add_to(mapa)
 
-                    # Atualiza a posição da bicicleta
+                    # Atualizar a posição da bicicleta 🚴‍♂️
                     bicicleta = folium.Marker(
                         location=coords[i],
-                        icon=folium.Icon(color="blue", icon="bicycle", prefix="fa")
+                        icon=folium.Icon(color="red", icon="bicycle", prefix="fa")
                     )
                     bicicleta.add_to(mapa)
 
+                    # Atualiza o mapa
                     mapa_placeholder = st_folium(mapa, width=800)
-                    time.sleep(1)  # Simula o tempo de deslocamento
+                    time.sleep(1)  # Simula o deslocamento GPS
 
             except nx.NetworkXNoPath:
                 st.error("❌ Não foi possível encontrar um caminho entre as localidades selecionadas.")
