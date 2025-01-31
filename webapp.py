@@ -21,6 +21,15 @@ LOCALIDADES = [
     {"nome": "Lumiar", "lat": 38.7755, "lon": -9.1603}
 ]
 
+# 🛒 Loja de produtos sustentáveis (nome, preço, link)
+PRODUTOS = [
+    {"nome": "Cesta de Frutas Orgânicas", "preco": 15, "link": "https://mercado-sustentavel.com/cesta"},
+    {"nome": "Mel Puro de Apicultura Local", "preco": 10, "link": "https://mercado-sustentavel.com/mel"},
+    {"nome": "Sabonete Natural de Alecrim", "preco": 5, "link": "https://mercado-sustentavel.com/sabonete"},
+    {"nome": "Farinha de Aveia Orgânica", "preco": 7, "link": "https://mercado-sustentavel.com/aveia"},
+    {"nome": "Óleo de Coco Extra Virgem", "preco": 12, "link": "https://mercado-sustentavel.com/oleo"},
+]
+
 # 🔐 Função de autenticação
 def autenticar(usuario, senha):
     return USUARIOS.get(usuario) == senha
@@ -63,7 +72,7 @@ def criar_mapa(pontos):
 
 # 🎯 Interface principal
 def main():
-    st.title("🚲 Otimizador de Percurso Sustentável")
+    st.title("🚲 Otimizador de Percurso Sustentável & Loja Online")
 
     # 🔐 Login
     if "logado" not in st.session_state:
@@ -94,62 +103,44 @@ def main():
         if inicio == destino:
             st.warning("⚠️ O ponto de partida e o destino são iguais!")
         else:
-            # Filtrar locais escolhidos + intermediários sustentáveis
             locais_escolhidos = [p for p in LOCALIDADES if p["nome"] in [inicio, destino]]
             caminho_otimizado = encontrar_melhor_caminho(locais_escolhidos)
 
-            # Criar e exibir o mapa
-            mapa = criar_mapa(caminho_otimizado)
-            st_folium(mapa, width=800, height=500)
-# === Criando abas ===
-aba = st.sidebar.radio("Escolha uma opção:", ["🛍️ Loja Sustentável", "🗺️ Planejar Rota"])
+            # Salvar o caminho na sessão (EVITA QUE O MAPA DESAPAREÇA)
+            st.session_state["mapa"] = criar_mapa(caminho_otimizado)
 
-# === Loja Sustentável ===
-if aba == "🛍️ Loja Sustentável":
-    st.title("🛍️ Loja Sustentável")
-    produtos = [
-        {"nome": "Cesta Orgânica", "preco": 12.99, "img": "https://via.placeholder.com/150"},
-        {"nome": "Sabonete Natural", "preco": 7.50, "img": "https://via.placeholder.com/150"},
-        {"nome": "Bolsa Ecológica", "preco": 15.00, "img": "https://via.placeholder.com/150"},
-        {"nome": "Kit Bambu", "preco": 9.99, "img": "https://via.placeholder.com/150"},
-        {"nome": "Mel Orgânico", "preco": 18.50, "img": "https://via.placeholder.com/150"},
-        {"nome": "Horta Caseira", "preco": 25.00, "img": "https://via.placeholder.com/150"},
-        {"nome": "Cosméticos Naturais", "preco": 19.99, "img": "https://via.placeholder.com/150"},
-        {"nome": "Chá Artesanal", "preco": 10.99, "img": "https://via.placeholder.com/150"},
-        {"nome": "Velas Ecológicas", "preco": 14.50, "img": "https://via.placeholder.com/150"},
-    ]
+    # Mostrar o mapa armazenado
+    if "mapa" in st.session_state:
+        st_folium(st.session_state["mapa"], width=800, height=500)
 
-    def adicionar_ao_carrinho(produto):
-        if produto in st.session_state["carrinho"]:
-            st.session_state["carrinho"][produto] += 1
-        else:
-            st.session_state["carrinho"][produto] = 1
+    # 🛒 Loja Online
+    st.subheader("🛒 Loja Sustentável")
 
-    cols = st.columns(3)
+    # Inicializa o carrinho de compras
+    if "carrinho" not in st.session_state:
+        st.session_state["carrinho"] = []
 
-    for i, produto in enumerate(produtos):
-        with cols[i % 3]:
-            st.image(produto["img"], caption=produto["nome"])
-            st.write(f"💲 {produto['preco']:.2f}")
-            if st.button(f"🛒 Adicionar {produto['nome']}", key=produto["nome"]):
-                adicionar_ao_carrinho(produto["nome"])
-                st.success(f"{produto['nome']} adicionado ao carrinho!")
+    # Exibir produtos
+    for produto in PRODUTOS:
+        col1, col2, col3 = st.columns([2, 1, 1])
+        with col1:
+            st.markdown(f"**{produto['nome']}** - 💰 {produto['preco']}€")
+        with col2:
+            if st.button("🛍️ Adicionar", key=produto["nome"]):
+                st.session_state["carrinho"].append(produto)
+        with col3:
+            st.markdown(f"[🔗 Comprar]({produto['link']})")
 
-    st.sidebar.title("🛒 Carrinho de Compras")
+    # 🛍️ Mostrar Carrinho
     if st.session_state["carrinho"]:
-        total = 0
-        for item, qtd in st.session_state["carrinho"].items():
-            preco = next(p["preco"] for p in produtos if p["nome"] == item)
-            subtotal = preco * qtd
-            total += subtotal
-            st.sidebar.write(f"{item} ({qtd}x) - 💲{subtotal:.2f}")
-
-        st.sidebar.write(f"**Total: 💲{total:.2f}**")
-        if st.sidebar.button("✅ Finalizar Pedido"):
-            st.sidebar.success("Pedido realizado com sucesso! 🌱")
-            st.session_state["carrinho"] = {}
-    else:
-        st.sidebar.write("Seu carrinho está vazio.")
+        st.subheader("🛍️ Meu Carrinho")
+        total = sum(prod["preco"] for prod in st.session_state["carrinho"])
+        for item in st.session_state["carrinho"]:
+            st.write(f"✅ {item['nome']} - {item['preco']}€")
+        st.markdown(f"**💰 Total: {total}€**")
+        if st.button("🧹 Esvaziar Carrinho"):
+            st.session_state["carrinho"] = []
+            st.experimental_rerun()
 
 if __name__ == "__main__":
     main()
