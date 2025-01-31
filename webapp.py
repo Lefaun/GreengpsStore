@@ -38,13 +38,27 @@ def autenticar(usuario, senha):
 
 # 🚗 Encontrar melhor rota via OSMnx (menos poluição e trânsito)
 def encontrar_rota_otimizada(inicio, destino):
-    origem = ox.distance.nearest_nodes(grafo, LOCALIDADES[inicio][1], LOCALIDADES[inicio][0])
-    destino = ox.distance.nearest_nodes(grafo, LOCALIDADES[destino][1], LOCALIDADES[destino][0])
+    #origem = ox.distance.nearest_nodes(grafo, LOCALIDADES[inicio][1], LOCALIDADES[inicio][0])
+    #destino = ox.distance.nearest_nodes(grafo, LOCALIDADES[destino][1], LOCALIDADES[destino][0])
+    origem = ox.distance.nearest_nodes(grafo, LOCALIDADES[inicio][1], LOCALIDADES[inicio][0], return_dist=True)[0]
+    destino = ox.distance.nearest_nodes(grafo, LOCALIDADES[destino][1], LOCALIDADES[destino][0], return_dist=True)[0]
+    #caminho = nx.shortest_path(grafo, origem, destino, weight="length")  # Minimiza distância
+    #rota = [(grafo.nodes[n]["y"], grafo.nodes[n]["x"]) for n in caminho]
+    
+    grafo = ox.graph_from_place(
+    ["Lisboa, Portugal", "Amadora, Portugal", "Queluz, Portugal"],
+    network_type="drive"
+)
 
-    caminho = nx.shortest_path(grafo, origem, destino, weight="length")  # Minimiza distância
-    rota = [(grafo.nodes[n]["y"], grafo.nodes[n]["x"]) for n in caminho]
+    try:
+        caminho = nx.shortest_path(grafo, origem, destino, weight="length")
+        rota = [(grafo.nodes[n]["y"], grafo.nodes[n]["x"]) for n in caminho]
+    except nx.NetworkXNoPath:
+        st.error("🚨 Não há caminho disponível entre essas localidades!")
+    return None
 
     return rota
+
 
 # 🗺️ Criar mapa com a rota escolhida
 def criar_mapa(rota):
