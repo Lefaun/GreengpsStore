@@ -244,23 +244,6 @@ def enviar_email(pedido, total, endereco, pagamento):
 if "carrinho" not in st.session_state:
     st.session_state["carrinho"] = {}
 
-st.title("🛍️ Loja Sustentável")
-
-produtos = [
-    {"nome": "Cesta Orgânica", "preco": 12.99},
-    {"nome": "Sabonete Natural", "preco": 7.50},
-    {"nome": "Bolsa Ecológica", "preco": 15.00},
-    {"nome": "Kit Bambu", "preco": 9.99},
-    {"nome": "Mel Orgânico", "preco": 18.50}
-]
-
-for produto in produtos:
-    if st.button(f"🛒 Comprar {produto['nome']} - 💲{produto['preco']:.2f}"):
-        if produto['nome'] in st.session_state["carrinho"]:
-            st.session_state["carrinho"][produto['nome']] += 1
-        else:
-            st.session_state["carrinho"][produto['nome']] = 1
-        st.success(f"{produto['nome']} adicionado ao carrinho!")
 
 st.sidebar.title("🛒 Carrinho de Compras")
 
