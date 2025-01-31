@@ -198,5 +198,5 @@ def enviar_email(pedido, total):
             st.sidebar.error("Seu carrinho está vazio.")
 
 
-else:
-    st.sidebar.error("❌ Credenciais incorretas")
+    else:
+        st.sidebar.error("❌ Credenciais incorretas")
