@@ -57,7 +57,7 @@ def encontrar_rota_otimizada(inicio, destino):
         st.error("🚨 Não há caminho disponível entre essas localidades!")
         return None
 
-return rota
+    return rota
 
 
 # 🗺️ Criar mapa com a rota escolhida
