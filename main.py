@@ -61,8 +61,8 @@ if usuario == "admin" and senha == "1234":
                     data=[{"path": coords}],
                     get_path="path",
                     get_color="[0, 0, 255]",  # Azul discreto
-                    width_min_pixels=2,  # Traço mais fino
-                    get_width=2,
+                    width_min_pixels=8,  # Traço mais fino
+                    get_width=8,
                 )
 
                 view_state = pdk.ViewState(
