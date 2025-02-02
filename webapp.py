@@ -101,7 +101,7 @@ if usuario == "admin" and senha == "1234":
             {"nome": "Mel Orgânico", "preco": 18.50, "img": "mel.png"},
             {"nome": "Horta Caseira", "preco": 25.00, "img": "https://via.placeholder.com/150"},
             {"nome": "Cosméticos Naturais", "preco": 19.99, "img": "BolsaCometico.png"},
-            {"nome": "Chá Artesanal", "preco": 10.99, "img": "chá.jpg"},
+            {"nome": "Chá Artesanal", "preco": 10.99, "img": "Chá.jpg"},
             {"nome": "Velas Ecológicas", "preco": 14.50, "img": "Velas.png"},
         ]
 
@@ -119,7 +119,7 @@ if usuario == "admin" and senha == "1234":
         for i, produto in enumerate(produtos):
             with cols[i % 3]:
                 st.image(produto["img"], caption=produto["nome"])
-                st.write(f"💲 {produto['preco']:.2f}")
+                st.write(f"€ {produto['preco']:.2f}")
                 if st.button(f"🛒 Adicionar {produto['nome']}", key=produto["nome"]):
                     adicionar_ao_carrinho(produto["nome"])
                     st.success(f"{produto['nome']} adicionado ao carrinho!")
@@ -134,7 +134,7 @@ if usuario == "admin" and senha == "1234":
                 total += subtotal
                 st.sidebar.write(f"{item} ({qtd}x) - 💲{subtotal:.2f}")
 
-            st.sidebar.write(f"**Total: 💲{total:.2f}**")
+            st.sidebar.write(f"**Total: €{total:.2f}**")
             if st.sidebar.button("✅ Finalizar Pedido"):
                 st.sidebar.success("Pedido realizado com sucesso! 🌱")
                 st.session_state["carrinho"] = {}
