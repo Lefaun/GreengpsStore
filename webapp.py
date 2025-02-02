@@ -96,11 +96,11 @@ if usuario == "admin" and senha == "1234":
         produtos = [
             {"nome": "Cesta Orgânica", "preco": 12.99, "img": "Horta.png"},
             {"nome": "Sabonete Natural", "preco": 7.50, "img": "soap.png"},
-            {"nome": "Bolsa Ecológica", "preco": 15.00, "img": "https://via.placeholder.com/150"},
+            {"nome": "Bolsa Ecológica", "preco": 15.00, "img": "BolsaCometico.png"},
             {"nome": "Kit Bambu", "preco": 9.99, "img": "KitBambu.png"},
             {"nome": "Mel Orgânico", "preco": 18.50, "img": "mel.png"},
-            {"nome": "Horta Caseira", "preco": 25.00, "img": "https://via.placeholder.com/150"},
-            {"nome": "Cosméticos Naturais", "preco": 19.99, "img": "BolsaCometico.png"},
+            {"nome": "Horta Caseira", "preco": 25.00, "img": "Horta.jpg"},
+            {"nome": "Cosméticos Naturais", "preco": 19.99, "img": "Cosmetico.png"},
             {"nome": "Chá Artesanal", "preco": 10.99, "img": "Chá.jpg"},
             {"nome": "Velas Ecológicas", "preco": 14.50, "img": "Velas.png"},
         ]
@@ -244,7 +244,7 @@ if st.session_state["carrinho"]:
         total += subtotal
         pedido += f"{item} ({qtd}x) - 💲{subtotal:.2f}\n"
 
-    st.sidebar.write(f"**Total: 💲{total:.2f}**")
+    st.sidebar.write(f"**Total: €{total:.2f}**")
     endereco = st.sidebar.text_input("📍 Endereço de Entrega")
     pagamento = st.sidebar.selectbox("💳 Forma de Pagamento", ["Transferência Bancária", "MB Way", "PayPal"])
 
