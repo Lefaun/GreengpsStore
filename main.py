@@ -81,3 +81,59 @@ if usuario == "admin" and senha == "1234":
     # TAB 2 - Loja Online (permanece inalterada)
 else:
     st.sidebar.error("❌ Credenciais incorretas")
+
+# TAB 2 - Loja Online
+    with tabs[1]:
+        st.title("🛒 Loja Sustentável")
+
+        produtos = [
+            {"nome": "Cesta Orgânica", "preco": 12.99, "img": "Horta.png"},
+            {"nome": "Sabonete Natural", "preco": 7.50, "img": "soap.png"},
+            {"nome": "Bolsa Ecológica", "preco": 15.00, "img": "BolsaCometico.png"},
+            {"nome": "Kit Bambu", "preco": 9.99, "img": "KitBambu.png"},
+            {"nome": "Mel Orgânico", "preco": 18.50, "img": "mel.png"},
+            {"nome": "Horta Caseira", "preco": 25.00, "img": "Horta.jpg"},
+            {"nome": "Cosméticos Naturais", "preco": 19.99, "img": "Cosmetico.png"},
+            {"nome": "Chá Artesanal", "preco": 10.99, "img": "Chá.jpg"},
+            {"nome": "Velas Ecológicas", "preco": 14.50, "img": "Velas.png"},
+        ]
+
+        st.session_state.setdefault("carrinho", {})
+
+        def adicionar_ao_carrinho(produto):
+            if produto in st.session_state["carrinho"]:
+                st.session_state["carrinho"][produto] += 1
+            else:
+                st.session_state["carrinho"][produto] = 1
+
+        cols = st.columns(3)
+
+        for i, produto in enumerate(produtos):
+            with cols[i % 3]:
+                try:
+                    st.image(produto["img"], caption=produto["nome"], use_column_width=True)
+                except Exception:
+                    st.warning(f"Imagem não encontrada para {produto['nome']}.")
+                st.write(f"€ {produto['preco']:.2f}")
+                if st.button(f"🛒 Adicionar {produto['nome']}", key=produto["nome"]):
+                    adicionar_ao_carrinho(produto["nome"])
+                    st.success(f"{produto['nome']} adicionado ao carrinho!")
+
+        # Exibir Carrinho
+        st.sidebar.title("🛒 Carrinho de Compras")
+        if st.session_state["carrinho"]:
+            total = 0
+            for item, qtd in st.session_state["carrinho"].items():
+                preco = next(p["preco"] for p in produtos if p["nome"] == item)
+                subtotal = preco * qtd
+                total += subtotal
+                st.sidebar.write(f"{item} ({qtd}x) - €{subtotal:.2f}")
+
+            st.sidebar.write(f"**Total: €{total:.2f}**")
+            if st.sidebar.button("✅ Finalizar Pedido"):
+                st.sidebar.success("Pedido realizado com sucesso! 🌱")
+                st.session_state["carrinho"] = {}
+        else:
+            st.sidebar.write("Seu carrinho está vazio.")
+else:
+    st.sidebar.error("❌ Credenciais incorretas")
