@@ -266,30 +266,30 @@ if "carrinho" not in st.session_state:
 
 st.sidebar.title("🛒 Carrinho de Compras")
 
-if st.session_state["carrinho"]:
-    total = 0
-    pedido = ""
-    for item, qtd in st.session_state["carrinho"].items():
-        preco = next(p["preco"] for p in produtos if p["nome"] == item)
-        subtotal = preco * qtd
-        total += subtotal
-        pedido += f"{item} ({qtd}x) - 💲{subtotal:.2f}\n"
-
-    st.sidebar.write(f"**Total: €{total:.2f}**")
-    endereco = st.sidebar.text_input("📍 Endereço de Entrega")
-    pagamento = st.sidebar.selectbox("💳 Forma de Pagamento", ["Transferência Bancária", "MB Way", "PayPal"])
-
-    if st.sidebar.button("✅ Finalizar Pedido"):
-        if endereco:
-            if enviar_email(pedido, total, endereco, pagamento):
-                st.sidebar.success("Pedido realizado com sucesso! Um e-mail foi enviado. 📩")
-                st.session_state["carrinho"] = {}
+    if st.session_state["carrinho"]:
+        total = 0
+        pedido = ""
+        for item, qtd in st.session_state["carrinho"].items():
+            preco = next(p["preco"] for p in produtos if p["nome"] == item)
+            subtotal = preco * qtd
+            total += subtotal
+            pedido += f"{item} ({qtd}x) - 💲{subtotal:.2f}\n"
+    
+        st.sidebar.write(f"**Total: €{total:.2f}**")
+        endereco = st.sidebar.text_input("📍 Endereço de Entrega")
+        pagamento = st.sidebar.selectbox("💳 Forma de Pagamento", ["Transferência Bancária", "MB Way", "PayPal"])
+    
+        if st.sidebar.button("✅ Finalizar Pedido"):
+            if endereco:
+                if enviar_email(pedido, total, endereco, pagamento):
+                    st.sidebar.success("Pedido realizado com sucesso! Um e-mail foi enviado. 📩")
+                    st.session_state["carrinho"] = {}
+                else:
+                    st.sidebar.error("❌ Erro ao enviar e-mail. Tente novamente.")
             else:
-                st.sidebar.error("❌ Erro ao enviar e-mail. Tente novamente.")
-        else:
-            st.sidebar.error("❌ Informe um endereço de entrega.")
-else:
-    st.sidebar.write("Seu carrinho está vazio.")
+                st.sidebar.error("❌ Informe um endereço de entrega.")
+    else:
+        st.sidebar.write("Seu carrinho está vazio.")
 
 else:
     st.sidebar.error("❌ Credenciais incorretas")
