@@ -264,8 +264,8 @@ if "carrinho" not in st.session_state:
     st.session_state["carrinho"] = {}
 
 
-st.sidebar.title("🛒 Carrinho de Compras")
-
+    st.sidebar.title("🛒 Carrinho de Compras")
+    
     if st.session_state["carrinho"]:
         total = 0
         pedido = ""
