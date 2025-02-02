@@ -115,7 +115,7 @@ if usuario == "admin" and senha == "1234":
         for i, produto in enumerate(produtos):
             with cols[i % 3]:
                 try:
-                    st.image(produto["img"], caption=produto["nome"], use_column_width=True)
+                    st.image(produto["img"], caption=produto["nome"], use_container_width=True)
                 except Exception:
                     st.warning(f"Imagem não encontrada para {produto['nome']}.")
                 st.write(f"€ {produto['preco']:.2f}")
