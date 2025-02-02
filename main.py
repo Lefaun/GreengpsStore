@@ -4,23 +4,20 @@ from streamlit_folium import st_folium
 import openrouteservice
 from openrouteservice import convert
 import time
-import os
 
 # Configuração do layout
-st.set_page_config(page_title="Otimizador de Rotas & Loja", layout="wide")
 tabs = st.tabs(["Mapa", "Loja Online"])
 
 # Simulação de login
 st.sidebar.title("Login")
 usuario = st.sidebar.text_input("Usuário", value="admin")
-senha = st.sidebar.text_input("Senha", type="password", key="password")
+senha = st.sidebar.text_input("Senha", type="password", value="1234", key="password")
 
-# Autenticação básica
 if usuario == "admin" and senha == "1234":
+    # TAB 1 - Mapa
     with tabs[0]:
         st.title("🚴 Otimizador de Percurso - GPS Ativo")
 
-        # Localizações predefinidas
         LOCALIDADES = {
             "Amadora": (38.7597, -9.2249),
             "Queluz": (38.7566, -9.2546),
@@ -33,65 +30,68 @@ if usuario == "admin" and senha == "1234":
             "Setúbal": (38.5243, -8.8882)
         }
 
-        # Seletor de ponto de partida e destino
         inicio = st.selectbox("Escolha o ponto de partida", list(LOCALIDADES.keys()))
         destino = st.selectbox("Escolha o destino", list(LOCALIDADES.keys()))
         calcular_rota = st.button("Calcular Rota")
 
         if calcular_rota:
-            if inicio == destino:
-                st.error("⛔ O ponto de partida e o destino são iguais!")
-            else:
-                with st.spinner("Calculando rota..."):
-                    try:
-                        # Configurar a chave da API do OpenRouteService
-                        API_KEY = os.getenv("5b3ce3597851110001cf62481e1354879e17494ba3aa4a0619563108")  # Defina sua chave no ambiente
-                        cliente = openrouteservice.Client(key=API_KEY)
+            try:
+                # OpenRouteService API Key (substitua pela sua)
+                API_KEY = "5b3ce3597851110001cf62481e1354879e17494ba3aa4a0619563108"
+                cliente = openrouteservice.Client(key=API_KEY)
 
-                        coordenadas = [
-                            (LOCALIDADES[inicio][1], LOCALIDADES[inicio][0]),
-                            (LOCALIDADES[destino][1], LOCALIDADES[destino][0])
-                        ]
+                coordenadas = [LOCALIDADES[inicio][::-1], LOCALIDADES[destino][::-1]]
 
-                        # Requisitar rota para bicicleta
-                        rota = cliente.directions(coordenadas, profile='cycling-regular', format='geojson')
-                        distancia = round(rota['features'][0]['properties']['summary']['distance'] / 1000, 2)
-                        duracao = round(rota['features'][0]['properties']['summary']['duration'] / 60, 2)
+                # Calculando a rota
+                rota = cliente.directions(coordenadas, profile='cycling-regular', format='geojson')
+                coords = [(ponto[1], ponto[0]) for ponto in rota['features'][0]['geometry']['coordinates']]
 
-                        # Criar mapa
-                        mapa = folium.Map(location=LOCALIDADES[inicio], zoom_start=12)
+                # Criar o mapa
+                mapa = folium.Map(location=coords[0], zoom_start=12)
+                folium.PolyLine(coords, color="blue", weight=6).add_to(mapa)
 
-                        # Adicionar rota
-                        folium.GeoJson(rota, name="route").add_to(mapa)
+                bicicleta = folium.Marker(
+                    location=coords[0],
+                    icon=folium.Icon(color="red", icon="bicycle", prefix="fa")
+                )
+                bicicleta.add_to(mapa)
 
-                        # Marcadores de início e destino
-                        folium.Marker(LOCALIDADES[inicio], tooltip="Início", icon=folium.Icon(color='green')).add_to(mapa)
-                        folium.Marker(LOCALIDADES[destino], tooltip="Destino", icon=folium.Icon(color='red')).add_to(mapa)
+                mapa_placeholder = st_folium(mapa, width=800)
 
-                        # Exibir resultados
-                        st.success(f"🌍 Distância: {distancia} km | ⏱️ Duração estimada: {duracao} min")
-                        st_folium(mapa, width=800, height=500)
+                # Simulação de GPS
+                for i in range(len(coords)):
+                    mapa = folium.Map(location=coords[i], zoom_start=12)
+                    folium.PolyLine(coords, color="blue", weight=6).add_to(mapa)
 
-                    except Exception as e:
-                        st.error(f"❌ Erro ao calcular a rota: {e}")
+                    bicicleta = folium.Marker(
+                        location=coords[i],
+                        icon=folium.Icon(color="red", icon="bicycle", prefix="fa")
+                    )
+                    bicicleta.add_to(mapa)
+
+                    mapa_placeholder = st_folium(mapa, width=800)
+                    time.sleep(1)
+
+            except Exception as e:
+                st.error(f"❌ Erro ao calcular a rota: {e}")
         else:
             mapa = folium.Map(location=[38.7169, -9.1399], zoom_start=11)
-            st_folium(mapa, width=800, height=500)
+            st_folium(mapa, width=800)
 
-    # Loja Online
+    # TAB 2 - Loja Online
     with tabs[1]:
         st.title("🛍️ Loja Sustentável")
 
         produtos = [
-            {"nome": "Cesta Orgânica", "preco": 12.99, "img": "Horta.png"},
-            {"nome": "Sabonete Natural", "preco": 7.50, "img": "soap.png"},
-            {"nome": "Bolsa Ecológica", "preco": 15.00, "img": "BolsaCometico.png"},
-            {"nome": "Kit Bambu", "preco": 9.99, "img": "KitBambu.png"},
-            {"nome": "Mel Orgânico", "preco": 18.50, "img": "mel.png"},
-            {"nome": "Horta Caseira", "preco": 25.00, "img": "Horta.jpg"},
-            {"nome": "Cosméticos Naturais", "preco": 19.99, "img": "Cosmetico.png"},
-            {"nome": "Chá Artesanal", "preco": 10.99, "img": "Chá.jpg"},
-            {"nome": "Velas Ecológicas", "preco": 14.50, "img": "Velas.png"},
+            {"nome": "Cesta Orgânica", "preco": 12.99, "img": "imagens/Horta.png"},
+            {"nome": "Sabonete Natural", "preco": 7.50, "img": "imagens/soap.png"},
+            {"nome": "Bolsa Ecológica", "preco": 15.00, "img": "imagens/BolsaCometico.png"},
+            {"nome": "Kit Bambu", "preco": 9.99, "img": "imagens/KitBambu.png"},
+            {"nome": "Mel Orgânico", "preco": 18.50, "img": "imagens/mel.png"},
+            {"nome": "Horta Caseira", "preco": 25.00, "img": "imagens/Horta.jpg"},
+            {"nome": "Cosméticos Naturais", "preco": 19.99, "img": "imagens/Cosmetico.png"},
+            {"nome": "Chá Artesanal", "preco": 10.99, "img": "imagens/Chá.jpg"},
+            {"nome": "Velas Ecológicas", "preco": 14.50, "img": "imagens/Velas.png"},
         ]
 
         st.session_state.setdefault("carrinho", {})
@@ -103,15 +103,19 @@ if usuario == "admin" and senha == "1234":
                 st.session_state["carrinho"][produto] = 1
 
         cols = st.columns(3)
+
         for i, produto in enumerate(produtos):
             with cols[i % 3]:
-                st.image(produto["img"], caption=produto["nome"], use_column_width=True)
+                try:
+                    st.image(produto["img"], caption=produto["nome"], use_column_width=True)
+                except Exception:
+                    st.warning(f"Imagem não encontrada para {produto['nome']}.")
                 st.write(f"€ {produto['preco']:.2f}")
                 if st.button(f"🛒 Adicionar {produto['nome']}", key=produto["nome"]):
                     adicionar_ao_carrinho(produto["nome"])
                     st.success(f"{produto['nome']} adicionado ao carrinho!")
 
-        # Carrinho de Compras
+        # Exibir Carrinho
         st.sidebar.title("🛒 Carrinho de Compras")
         if st.session_state["carrinho"]:
             total = 0
@@ -120,6 +124,7 @@ if usuario == "admin" and senha == "1234":
                 subtotal = preco * qtd
                 total += subtotal
                 st.sidebar.write(f"{item} ({qtd}x) - €{subtotal:.2f}")
+
             st.sidebar.write(f"**Total: €{total:.2f}**")
             if st.sidebar.button("✅ Finalizar Pedido"):
                 st.sidebar.success("Pedido realizado com sucesso! 🌱")
