@@ -1,17 +1,9 @@
 import streamlit as st
 import openrouteservice
 import pydeck as pdk
-import time
+import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import smtplib
-import openrouteservice
-import pydeck as pdk
-import time
-
-import streamlit as st
-import openrouteservice
-import pydeck as pdk
 
 # Configuração do layout
 tabs = st.tabs(["Mapa", "Loja Online"])
@@ -57,12 +49,10 @@ if usuario == "admin" and senha == "1234":
                 API_KEY = "5b3ce3597851110001cf62481e1354879e17494ba3aa4a0619563108"
                 cliente = openrouteservice.Client(key=API_KEY)
 
+                coordenadas = [LOCALIDADES[inicio][::-1], LOCALIDADES[destino][::-1]]
+
                 # Calculando a rota
-                rota = cliente.directions(
-                    [LOCALIDADES[inicio][::-1], LOCALIDADES[destino][::-1]],
-                    profile='cycling-regular',
-                    format='geojson'
-                )
+                rota = cliente.directions(coordenadas, profile='cycling-regular', format='geojson')
                 coords = rota['features'][0]['geometry']['coordinates']
 
                 # Configuração do traçado fino e discreto
@@ -76,8 +66,8 @@ if usuario == "admin" and senha == "1234":
                 )
 
                 view_state = pdk.ViewState(
-                    latitude=LOCALIDADES[inicio][0],
-                    longitude=LOCALIDADES[inicio][1],
+                    latitude=coordenadas[0][1],
+                    longitude=coordenadas[0][0],
                     zoom=12,
                     pitch=0
                 )
@@ -91,11 +81,6 @@ if usuario == "admin" and senha == "1234":
 
             except Exception as e:
                 st.error(f"❌ Erro ao calcular a rota: {e}")
-
-    # TAB 2 - Loja Online
-else:
-    st.sidebar.error("❌ Credenciais incorretas")
-
 
     # TAB 2 - Loja Online
     with tabs[1]:
@@ -138,12 +123,11 @@ else:
         st.sidebar.title("🛒 Carrinho de Compras")
         if st.session_state["carrinho"]:
             total = 0
-            pedido = ""
             for item, qtd in st.session_state["carrinho"].items():
                 preco = next(p["preco"] for p in produtos if p["nome"] == item)
                 subtotal = preco * qtd
                 total += subtotal
-                pedido += f"{item} ({qtd}x) - €{subtotal:.2f}\n"
+                st.sidebar.write(f"{item} ({qtd}x) - €{subtotal:.2f}")
 
             st.sidebar.write(f"**Total: €{total:.2f}**")
             endereco = st.sidebar.text_input("📍 Endereço de Entrega")
@@ -151,13 +135,57 @@ else:
 
             if st.sidebar.button("✅ Finalizar Pedido"):
                 if endereco:
+                    pedido = ""
+                    for item, qtd in st.session_state["carrinho"].items():
+                        preco = next(p["preco"] for p in produtos if p["nome"] == item)
+                        subtotal = preco * qtd
+                        pedido += f"{item} ({qtd}x) - 💲{subtotal:.2f}\n"
                     if enviar_email(pedido, total, endereco, pagamento):
-                        st.sidebar.success("Pedido realizado com sucesso! 📩")
+                        st.sidebar.success("Pedido realizado com sucesso! Um e-mail foi enviado. 📩")
                         st.session_state["carrinho"] = {}
                     else:
-                        st.sidebar.error("❌ Erro ao enviar e-mail.")
+                        st.sidebar.error("❌ Erro ao enviar e-mail. Tente novamente.")
                 else:
                     st.sidebar.error("❌ Informe um endereço de entrega.")
         else:
             st.sidebar.write("Seu carrinho está vazio.")
 
+else:
+    st.sidebar.error("❌ Credenciais incorretas")
+
+# Função para enviar o e-mail
+def enviar_email(pedido, total, endereco, pagamento):
+    EMAIL_REMETENTE = "seuemail@gmail.com"
+    SENHA_EMAIL = "suasenha"
+    EMAIL_DESTINATARIO = "seuemail@gmail.com"
+
+    msg = MIMEMultipart()
+    msg["From"] = EMAIL_REMETENTE
+    msg["To"] = EMAIL_DESTINATARIO
+    msg["Subject"] = "Novo Pedido - Loja Sustentável"
+
+    corpo_email = f"""
+    🛍️ Novo pedido recebido!
+    
+    Produtos:
+    {pedido}
+    
+    Total: 💲{total:.2f}
+    
+    Forma de pagamento: {pagamento}
+    Endereço de entrega: {endereco}
+    
+    Obrigado por sua compra! 🌱
+    """
+    msg.attach(MIMEText(corpo_email, "plain"))
+
+    try:
+        servidor = smtplib.SMTP("smtp.gmail.com", 587)
+        servidor.starttls()
+        servidor.login(EMAIL_REMETENTE, SENHA_EMAIL)
+        servidor.sendmail(EMAIL_REMETENTE, EMAIL_DESTINATARIO, msg.as_string())
+        servidor.quit()
+        return True
+    except Exception as e:
+        print(f"Erro ao enviar e-mail: {e}")
+        return False
