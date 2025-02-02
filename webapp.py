@@ -132,7 +132,7 @@ if usuario == "admin" and senha == "1234":
                 preco = next(p["preco"] for p in produtos if p["nome"] == item)
                 subtotal = preco * qtd
                 total += subtotal
-                st.sidebar.write(f"{item} ({qtd}x) - 💲{subtotal:.2f}")
+                st.sidebar.write(f"{item} ({qtd}x) - €{subtotal:.2f}")
 
             st.sidebar.write(f"**Total: €{total:.2f}**")
             if st.sidebar.button("✅ Finalizar Pedido"):
