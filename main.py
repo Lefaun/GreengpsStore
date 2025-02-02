@@ -1,6 +1,4 @@
 import streamlit as st
-import folium
-from streamlit_folium import st_folium
 import openrouteservice
 import time
 
@@ -45,36 +43,20 @@ if usuario == "admin" and senha == "1234":
                 rota = cliente.directions(coordenadas, profile='cycling-regular', format='geojson')
                 coords = [(ponto[1], ponto[0]) for ponto in rota['features'][0]['geometry']['coordinates']]
 
-                # Criar o mapa com zoom no ponto inicial
-                mapa = folium.Map(location=coords[0], zoom_start=14)
-                folium.PolyLine(coords, color="green", weight=6).add_to(mapa)
+                # Exibir coordenadas para debug
+                st.write("Coordenadas da rota:", coords)
 
-                # Adicionar ícone de bicicleta no ponto inicial
-                folium.Marker(
-                    location=coords[0],
-                    icon=folium.Icon(color="blue", icon="bicycle", prefix="fa")
-                ).add_to(mapa)
-
-                mapa_placeholder = st_folium(mapa, width=800)
+                # Exibir rota como texto simples
+                for i, coord in enumerate(coords):
+                    st.write(f"Ponto {i+1}: Latitude {coord[0]}, Longitude {coord[1]}")
 
                 # Simulação de GPS
                 for i in range(len(coords)):
-                    mapa = folium.Map(location=coords[i], zoom_start=14)
-                    folium.PolyLine(coords, color="green", weight=6).add_to(mapa)
-
-                    folium.Marker(
-                        location=coords[i],
-                        icon=folium.Icon(color="blue", icon="bicycle", prefix="fa")
-                    ).add_to(mapa)
-
-                    mapa_placeholder = st_folium(mapa, width=800)
+                    st.write(f"🚴 Em movimento: Latitude {coords[i][0]}, Longitude {coords[i][1]}")
                     time.sleep(1)
 
             except Exception as e:
                 st.error(f"❌ Erro ao calcular a rota: {e}")
-        else:
-            mapa = folium.Map(location=[38.7169, -9.1399], zoom_start=11)
-            st_folium(mapa, width=800)
 
     # TAB 2 - Loja Online
     with tabs[1]:
