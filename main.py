@@ -46,28 +46,27 @@ if usuario == "admin" and senha == "1234":
                 rota = cliente.directions(coordenadas, profile='cycling-regular', format='geojson')
                 coords = [(ponto[1], ponto[0]) for ponto in rota['features'][0]['geometry']['coordinates']]
 
-                # Criar o mapa
-                mapa = folium.Map(location=coords[0], zoom_start=12)
-                folium.PolyLine(coords, color="blue", weight=6).add_to(mapa)
+                # Criar o mapa com zoom no ponto inicial
+                mapa = folium.Map(location=coords[0], zoom_start=14)
+                folium.PolyLine(coords, color="green", weight=6).add_to(mapa)
 
-                bicicleta = folium.Marker(
+                # Adicionar ícone de bicicleta no ponto inicial
+                folium.Marker(
                     location=coords[0],
-                    icon=folium.Icon(color="red", icon="bicycle", prefix="fa")
-                )
-                bicicleta.add_to(mapa)
+                    icon=folium.Icon(color="blue", icon="bicycle", prefix="fa")
+                ).add_to(mapa)
 
                 mapa_placeholder = st_folium(mapa, width=800)
 
                 # Simulação de GPS
                 for i in range(len(coords)):
-                    mapa = folium.Map(location=coords[i], zoom_start=12)
-                    folium.PolyLine(coords, color="blue", weight=6).add_to(mapa)
+                    mapa = folium.Map(location=coords[i], zoom_start=14)
+                    folium.PolyLine(coords, color="green", weight=6).add_to(mapa)
 
-                    bicicleta = folium.Marker(
+                    folium.Marker(
                         location=coords[i],
-                        icon=folium.Icon(color="red", icon="bicycle", prefix="fa")
-                    )
-                    bicicleta.add_to(mapa)
+                        icon=folium.Icon(color="blue", icon="bicycle", prefix="fa")
+                    ).add_to(mapa)
 
                     mapa_placeholder = st_folium(mapa, width=800)
                     time.sleep(1)
@@ -80,7 +79,7 @@ if usuario == "admin" and senha == "1234":
 
     # TAB 2 - Loja Online
     with tabs[1]:
-        st.title("🛍️ Loja Sustentável")
+        st.title("🛒 Loja Sustentável")
 
         produtos = [
             {"nome": "Cesta Orgânica", "preco": 12.99, "img": "imagens/Horta.png"},
