@@ -5,6 +5,6 @@ networkx
 folium
 streamlit-folium
 scikit-learn
-osmnx
+
 openrouteservice
-time
+
