@@ -31,7 +31,15 @@ if usuario == "admin" and senha == "1234":
 
         inicio = st.selectbox("Escolha o ponto de partida", list(LOCALIDADES.keys()))
         destino = st.selectbox("Escolha o destino", list(LOCALIDADES.keys()))
+        estilo_mapa = st.selectbox("Escolha o estilo do mapa", ["Claro", "Satélite"])
         calcular_rota = st.button("Calcular Rota")
+
+        # Definição do estilo do mapa
+        map_styles = {
+            "Claro": "mapbox://styles/mapbox/light-v9",
+            "Satélite": "mapbox://styles/mapbox/satellite-v9"
+        }
+        map_style_selected = map_styles[estilo_mapa]
 
         if calcular_rota:
             try:
@@ -73,7 +81,11 @@ if usuario == "admin" and senha == "1234":
                     pickable=True
                 )
 
-                st.pydeck_chart(pdk.Deck(layers=[linha_rota, bicicleta_layer], initial_view_state=view_state))
+                st.pydeck_chart(pdk.Deck(
+                    map_style=map_style_selected,
+                    layers=[linha_rota, bicicleta_layer],
+                    initial_view_state=view_state
+                ))
 
                 # Simulação de GPS
                 for i, ponto in enumerate(coords):
