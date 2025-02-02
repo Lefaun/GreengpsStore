@@ -1,5 +1,7 @@
 import streamlit as st
 import openrouteservice
+from openrouteservice import convert
+import pydeck as pdk
 import time
 
 # Configuração do layout
@@ -41,18 +43,41 @@ if usuario == "admin" and senha == "1234":
 
                 # Calculando a rota
                 rota = cliente.directions(coordenadas, profile='cycling-regular', format='geojson')
-                coords = [(ponto[1], ponto[0]) for ponto in rota['features'][0]['geometry']['coordinates']]
+                coords = rota['features'][0]['geometry']['coordinates']
 
-                # Exibir coordenadas para debug
-                st.write("Coordenadas da rota:", coords)
+                # Configurando o mapa
+                linha_rota = pdk.Layer(
+                    "PathLayer",
+                    data=[{"path": coords}],
+                    get_path="path",
+                    get_color="[0, 255, 0]",
+                    width_scale=20,
+                    width_min_pixels=5,
+                    get_width=5,
+                )
 
-                # Exibir rota como texto simples
-                for i, coord in enumerate(coords):
-                    st.write(f"Ponto {i+1}: Latitude {coord[0]}, Longitude {coord[1]}")
+                view_state = pdk.ViewState(
+                    latitude=coordenadas[0][1],
+                    longitude=coordenadas[0][0],
+                    zoom=12,
+                    pitch=50
+                )
+
+                # Adicionando ícone de bicicleta
+                bicicleta_layer = pdk.Layer(
+                    "ScatterplotLayer",
+                    data=[{"position": coordenadas[0]}],
+                    get_position="position",
+                    get_color="[255, 0, 0]",
+                    get_radius=100,
+                    pickable=True
+                )
+
+                st.pydeck_chart(pdk.Deck(layers=[linha_rota, bicicleta_layer], initial_view_state=view_state))
 
                 # Simulação de GPS
-                for i in range(len(coords)):
-                    st.write(f"🚴 Em movimento: Latitude {coords[i][0]}, Longitude {coords[i][1]}")
+                for i, ponto in enumerate(coords):
+                    st.write(f"🚴 Em movimento: Latitude {ponto[1]}, Longitude {ponto[0]}")
                     time.sleep(1)
 
             except Exception as e:
