@@ -45,7 +45,7 @@ if usuario == "admin" and senha == "1234":
 
         if calcular_rota:
             try:
-                API_KEY = "SUA_API_KEY"
+                API_KEY = "5b3ce3597851110001cf62481e1354879e17494ba3aa4a0619563108"
                 cliente = openrouteservice.Client(key=API_KEY)
 
                 coordenadas = [LOCALIDADES[inicio][::-1], LOCALIDADES[destino][::-1]]
