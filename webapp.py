@@ -101,7 +101,7 @@ if usuario == "admin" and senha == "1234":
             {"nome": "Mel Orgânico", "preco": 18.50, "img": "mel.png"},
             {"nome": "Horta Caseira", "preco": 25.00, "img": "https://via.placeholder.com/150"},
             {"nome": "Cosméticos Naturais", "preco": 19.99, "img": "BolsaCometico.png"},
-            {"nome": "Chá Artesanal", "preco": 10.99, "img": "https://via.placeholder.com/150"},
+            {"nome": "Chá Artesanal", "preco": 10.99, "img": "chá.jpg"},
             {"nome": "Velas Ecológicas", "preco": 14.50, "img": "Velas.png"},
         ]
 
