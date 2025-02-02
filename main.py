@@ -69,7 +69,7 @@ if usuario == "admin" and senha == "1234":
                     latitude=coordenadas[0][1],
                     longitude=coordenadas[0][0],
                     zoom=12,
-                    pitch=0
+                    pitch=3
                 )
 
                 # Exibir o mapa com a rota ajustada às ruas
