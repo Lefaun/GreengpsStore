@@ -9,6 +9,10 @@ import openrouteservice
 import pydeck as pdk
 import time
 
+import streamlit as st
+import openrouteservice
+import pydeck as pdk
+
 # Configuração do layout
 tabs = st.tabs(["Mapa", "Loja Online"])
 
@@ -22,9 +26,22 @@ if usuario == "admin" and senha == "1234":
     with tabs[0]:
         st.title("🚴 Otimizador de Percurso - GPS Ativo")
 
-        inicio = st.text_input("📍 Endereço de partida", value="Lisboa, Portugal")
-        destino = st.text_input("📍 Endereço de destino", value="Sintra, Portugal")
-        estilo_mapa = st.selectbox("🗺️ Escolha o estilo do mapa", ["Claro", "Satélite"])
+        LOCALIDADES = {
+            "Amadora": (38.7597, -9.2249),
+            "Queluz": (38.7566, -9.2546),
+            "Lisboa": (38.7169, -9.1399),
+            "Sintra": (38.8029, -9.3817),
+            "Oeiras": (38.6979, -9.3017),
+            "Cascais": (38.6970, -9.4223),
+            "Loures": (38.8309, -9.1685),
+            "Almada": (38.6766, -9.1668),
+            "Setúbal": (38.5243, -8.8882)
+        }
+
+        # Preenchimento automático de localidades
+        inicio = st.selectbox("Escolha o ponto de partida", list(LOCALIDADES.keys()))
+        destino = st.selectbox("Escolha o destino", list(LOCALIDADES.keys()))
+        estilo_mapa = st.selectbox("Escolha o estilo do mapa", ["Claro", "Satélite"])
         calcular_rota = st.button("Calcular Rota")
 
         # Definição do estilo do mapa
@@ -36,17 +53,16 @@ if usuario == "admin" and senha == "1234":
 
         if calcular_rota:
             try:
-                # Chave da API OpenRouteService (substitua pela sua)
+                # OpenRouteService API Key (substitua pela sua)
                 API_KEY = "5b3ce3597851110001cf62481e1354879e17494ba3aa4a0619563108"
                 cliente = openrouteservice.Client(key=API_KEY)
 
-                # Obtém coordenadas dos endereços digitados
-                locais = cliente.pelias_search(inicio)["features"][0]["geometry"]["coordinates"]
-                destino_locais = cliente.pelias_search(destino)["features"][0]["geometry"]["coordinates"]
-                coordenadas = [locais, destino_locais]
-
-                # Calcula a rota
-                rota = cliente.directions(coordenadas, profile='cycling-regular', format='geojson')
+                # Calculando a rota
+                rota = cliente.directions(
+                    [LOCALIDADES[inicio][::-1], LOCALIDADES[destino][::-1]],
+                    profile='cycling-regular',
+                    format='geojson'
+                )
                 coords = rota['features'][0]['geometry']['coordinates']
 
                 # Configuração do traçado fino e discreto
@@ -60,8 +76,8 @@ if usuario == "admin" and senha == "1234":
                 )
 
                 view_state = pdk.ViewState(
-                    latitude=locais[1],
-                    longitude=locais[0],
+                    latitude=LOCALIDADES[inicio][0],
+                    longitude=LOCALIDADES[inicio][1],
                     zoom=12,
                     pitch=0
                 )
@@ -73,13 +89,12 @@ if usuario == "admin" and senha == "1234":
                     initial_view_state=view_state
                 ))
 
-                # Simulação de GPS se movendo
-                for i, ponto in enumerate(coords):
-                    st.write(f"🚴 Em movimento: Latitude {ponto[1]}, Longitude {ponto[0]}")
-                    time.sleep(1)
-
             except Exception as e:
                 st.error(f"❌ Erro ao calcular a rota: {e}")
+
+    # TAB 2 - Loja Online
+else:
+    st.sidebar.error("❌ Credenciais incorretas")
 
 
     # TAB 2 - Loja Online
