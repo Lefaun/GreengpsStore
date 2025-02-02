@@ -94,8 +94,8 @@ if usuario == "admin" and senha == "1234":
 
         # Lista de produtos
         produtos = [
-            {"nome": "Cesta Orgânica", "preco": 12.99, "img": "https://via.placeholder.com/150"},
-            {"nome": "Sabonete Natural", "preco": 7.50, "img": "https://via.placeholder.com/150"},
+            {"nome": "Cesta Orgânica", "preco": 12.99, "img": "Horta.png"},
+            {"nome": "Sabonete Natural", "preco": 7.50, "img": "soap.png"},
             {"nome": "Bolsa Ecológica", "preco": 15.00, "img": "https://via.placeholder.com/150"},
             {"nome": "Kit Bambu", "preco": 9.99, "img": "https://via.placeholder.com/150"},
             {"nome": "Mel Orgânico", "preco": 18.50, "img": "https://via.placeholder.com/150"},
